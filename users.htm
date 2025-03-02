@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Username Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        input {
+            padding: 10px;
+            width: 80%;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            width: 85%;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .check-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .password-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .message {
+            font-size: 18px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .exists {
+            background-color: #ff4d4d;
+            color: white;
+        }
+        .available {
+            background-color: #28a745;
+            color: white;
+        }
+        .reminder {
+            background-color: #ffcc00;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Check Username Availability</h2>
+        <input type="text" id="username" placeholder="Enter username">
+        <button class="check-btn" onclick="checkUsername()">Check Username</button>
+        <button class="password-btn" onclick="remindPassword()">Remind Password</button>
+        <div id="result" class="message"></div>
+    </div>
+
+    <script>
+        function checkUsername() {
+            let username = document.getElementById("username").value;
+        
+            if (username === "") {
+                document.getElementById("result").innerHTML = "Please enter a username.";
+                document.getElementById("result").className = "message exists";
+                return;
+            }
+        
+            fetch("http://127.0.0.1:5000/check_username?username=" + encodeURIComponent(username))
+                .then(response => response.json())
+                .then(data => {
+                    let result = document.getElementById("result");
+                    if (data.exists) {
+                        result.innerHTML = "❌ Username exists. Try another one.";
+                        result.className = "message exists";
+                    } else {
+                        result.innerHTML = "✅ Username available!";
+                        result.className = "message available";
+                    }
+                })
+                .catch(error => {
+                    document.getElementById("result").innerHTML = "⚠️ Error connecting to the server.";
+                    document.getElementById("result").className = "message exists";
+                    console.error("Fetch error:", error);
+                });
+        }
+        
+        function remindPassword() {
+            fetch("http://127.0.0.1:5000/remind_password")
+                .then(response => response.json())
+                .then(data => {
+                    let result = document.getElementById("result");
+                    result.innerHTML = `🔑 Your password is: <strong>${data.password_reminder}</strong>`;
+                    result.className = "message reminder";
+                })
+                .catch(error => {
+                    document.getElementById("result").innerHTML = "⚠️ Error connecting to the server.";
+                    document.getElementById("result").className = "message exists";
+                });
+        }
+           
+    </script>
+
+</body>
+</html>
